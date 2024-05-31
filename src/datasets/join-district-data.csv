@@ -1,4 +1,8 @@
-Community District,Property Crime Rate,Violent Crime Rate,"Population under $20,000","Population between $20,001 and $40,000","Population between $40,001 and $60,000","Population between $60,001 and $100,000","Population between $100,001 and $250,000","Population over $250,000",Poverty Rate,Hispanic Population,Asian Population,Black Population,White Population
+Community District,Property Crime Rate,Violent Crime Rate,"Population under $20,000","$20,001 -
+$40,000","$40,001 -
+$60,000","$60,001 -
+$100,000","$100,001 -
+$250,000","Population over $250,000",Poverty Rate,Hispanic Population,Asian Population,Black Population,White Population
 BX01,0.014,0.017,0.346,0.22,0.153,0.123,0.144,0.015,0.327,0.679,0.004,0.272,0.022
 BX02,0.016,0.015,0.346,0.22,0.153,0.123,0.144,0.015,0.327,0.679,0.004,0.272,0.022
 BX03,0.012,0.012,0.331,0.216,0.173,0.158,0.111,0.012,0.384,0.627,0.006,0.303,0.032
