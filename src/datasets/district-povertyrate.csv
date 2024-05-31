@@ -1,0 +1,66 @@
+Geography,Name,Level,Year,poverty_rate
+NYC,New York City,City,2022,18.3%
+BX,The Bronx,Boro,2022,27.7%
+BK,Brooklyn,Boro,2022,19.8%
+MN,Manhattan,Boro,2022,17.3%
+QN,Queens,Boro,2022,13.0%
+SI,Staten Island,Boro,2022,11.0%
+BX 01,Mott Haven/Melrose,Community District,2022,32.7%
+BX 02,Hunts Point/Longwood,Community District,2022,32.7%
+BX 03,Morrisania/Crotona,Community District,2022,38.4%
+BX 04,Highbridge/Concourse,Community District,2022,34.6%
+BX 05,Fordham/University Heights,Community District,2022,28.6%
+BX 06,Belmont/East Tremont,Community District,2022,38.4%
+BX 07,Kingsbridge Heights/Bedford,Community District,2022,37.7%
+BX 08,Riverdale/Fieldston,Community District,2022,10.6%
+BX 09,Parkchester/Soundview,Community District,2022,23.7%
+BX 10,Throgs Neck/Co-op City,Community District,2022,18.9%
+BX 11,Morris Park/Bronxdale,Community District,2022,17.6%
+BX 12,Williamsbridge/Baychester,Community District,2022,26.0%
+BK 01,Greenpoint/Williamsburg,Community District,2022,18.8%
+BK 02,Fort Greene/Brooklyn Heights,Community District,2022,12.9%
+BK 03,Bedford Stuyvesant,Community District,2022,24.8%
+BK 04,Bushwick,Community District,2022,19.9%
+BK 05,East New York/Starrett City,Community District,2022,24.6%
+BK 06,Park Slope/Carroll Gardens,Community District,2022,9.3%
+BK 07,Sunset Park,Community District,2022,20.7%
+BK 08,Crown Heights/Prospect Heights,Community District,2022,20.2%
+BK 09,South Crown Heights/Lefferts Gardens,Community District,2022,16.6%
+BK 10,Bay Ridge/Dyker Heights,Community District,2022,12.5%
+BK 11,Bensonhurst,Community District,2022,19.5%
+BK 12,Borough Park,Community District,2022,23.8%
+BK 13,Coney Island,Community District,2022,24.9%
+BK 14,Flatbush/Midwood,Community District,2022,21.3%
+BK 15,Sheepshead Bay,Community District,2022,19.1%
+BK 16,Brownsville,Community District,2022,39.1%
+BK 17,East Flatbush,Community District,2022,17.8%
+BK 18,Flatlands/Canarsie,Community District,2022,11.5%
+MN 01,Financial District,Community District,2022,8.5%
+MN 02,Greenwich Village/Soho,Community District,2022,8.5%
+MN 03,Lower East Side/Chinatown,Community District,2022,26.0%
+MN 04,Clinton/Chelsea,Community District,2022,15.4%
+MN 05,Midtown,Community District,2022,15.4%
+MN 06,Stuyvesant Town/Turtle Bay,Community District,2022,9.0%
+MN 07,Upper West Side,Community District,2022,10.5%
+MN 08,Upper East Side,Community District,2022,7.1%
+MN 09,Morningside Heights/Hamilton,Community District,2022,24.2%
+MN 10,Central Harlem,Community District,2022,28.2%
+MN 11,East Harlem,Community District,2022,38.2%
+MN 12,Washington Heights/Inwood,Community District,2022,20.1%
+QN 01,Astoria,Community District,2022,16.1%
+QN 02,Woodside/Sunnyside,Community District,2022,11.5%
+QN 03,Jackson Heights,Community District,2022,15.6%
+QN 04,Elmhurst/Corona,Community District,2022,17.9%
+QN 05,Ridgewood/Maspeth,Community District,2022,11.3%
+QN 06,Rego Park/Forest Hills,Community District,2022,10.6%
+QN 07,Flushing/Whitestone,Community District,2022,15.9%
+QN 08,Hillcrest/Fresh Meadows,Community District,2022,11.8%
+QN 09,Kew Gardens/Woodhaven,Community District,2022,11.5%
+QN 10,South Ozone Park/Howard Beach,Community District,2022,9.1%
+QN 11,Bayside/Little Neck,Community District,2022,8.4%
+QN 12,Jamaica/Hollis,Community District,2022,13.4%
+QN 13,Queens Village,Community District,2022,8.7%
+QN 14,Rockaway/Broad Channel,Community District,2022,17.6%
+SI 01,St. George/Stapleton,Community District,2022,15.0%
+SI 02,South Beach/Willowbrook,Community District,2022,9.6%
+SI 03,Tottenville/Great Kills,Community District,2022,7.8%
