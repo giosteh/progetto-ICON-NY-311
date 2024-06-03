@@ -259,10 +259,10 @@ def preprocess_subboroughs_data():
         df.rename(columns={'2021': info[1]}, inplace=True)
         df_join = pd.merge(df_join, df, on='Sub-Borough Area', how='inner')
     
-    for i, col in enumerate(subboroughs_data_info):
+    subboroughs_cols = [col[1] for col in subboroughs_data_info]
+    for i, col in enumerate(subboroughs_cols):
         if i > 1:
-            df_join[col[1]] = df_join[col[1]].astype(float) * 100
-            df_join[col[1]] = df_join[col[1]].round(3)
+            df_join[col] = (df_join[col].astype(float) * 100).round(3)
     
     df_join.to_csv('datasets/subboroughs-data.csv', index=False)
 
