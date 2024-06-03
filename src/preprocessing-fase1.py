@@ -3,13 +3,14 @@ import pandas as pd
 from datetime import timedelta
 from geopy.distance import great_circle
 
-
+# dizionario che mappa i nomi dei borough ai loro acronimi
 acronyms = {'BRONX': 'BX',
             'BROOKLYN': 'BK',
             'MANHATTAN': 'MN',
             'QUEENS': 'QN',
             'STATEN ISLAND': 'SI'}
 
+# dizionario che mappa i codici dei distretti alle sub-borough area
 districts_map = {'BK01': 'Williamsburg/Greenpoint',
                  'BK02': 'Brooklyn Heights/Fort Greene',
                  'BK03': 'Bedford Stuyvesant',
@@ -73,6 +74,10 @@ districts_map = {'BK01': 'Williamsburg/Greenpoint',
 
 def preprocess_servicerequests_data():
     """
+    Esegue il preprocessing iniziale del dataset '311-2023-05.csv',
+    ottenuto precedentemente dalla selezione delle richieste di servizio 311
+    fatte nel mese di maggio dell'anno 2023, da cui sono state inoltre
+    eliminate colonne a valori per la maggior parte nulli.
     """
     df = pd.read_csv('datasets/311-2023-05.csv')
 
@@ -107,15 +112,14 @@ def preprocess_servicerequests_data():
 
 def create_unique_incidents_dataset():
     """
+    Individua, a partire dal dataset preprocessato '311-2023-05-v2.csv',
+    gli `incident` unici oggetto di più richieste di servizio,
+    isolandoli e realizzando un dataset che li collezioni.
     """
     df = pd.read_csv('datasets/311-2023-05-v2.csv')
     df['Created Date'] = pd.to_datetime(df['Created Date'])
 
     def is_same_incident(row1, row2, time_window_hours=24, max_distance_meters=100):
-        """
-        """
-        if row1['Street Name'] != row2['Street Name']:
-            return False
         if row1['Complaint Type'] != row2['Complaint Type']:
             return False
         if row1['Descriptor'] != row2['Descriptor']:
@@ -132,8 +136,6 @@ def create_unique_incidents_dataset():
         return True
     
     def identify_incidents(df):
-        """
-        """        
         incidents = []
         used_indexes = set()
 
@@ -166,17 +168,19 @@ def create_unique_incidents_dataset():
     incidents_df = pd.DataFrame(incidents_rows)
     incidents_df.to_csv('datasets/311-unique-incidents.csv', index=False)
 
-
+# lista dei path dei dataset sui distretti
 districts_data_paths = ['datasets/district-incomedistribution.csv',
                        'datasets/district-povertyrate.csv',
                        'datasets/district-racecomposition.csv',
                        'datasets/district-crimerate.csv']
 
+# lista delle coppie di distretti i cui dati sono ripetuti
 districts_to_collapse = [('BX01', 'BX02'),
                          ('BX03', 'BX06'),
                          ('MN01', 'MN02'),
                          ('MN04', 'MN05')]
 
+# lista delle coppie (path, rinominazione della colonna 2021) per ciascuno dei dataset sui sub-borough
 subboroughs_data_info = [('datasets/sub-borougharea-populationdensity1000personspersquaremile.csv', 'Population Density'),
                          ('datasets/sub-borougharea-populationaged65.csv', 'Population Aged 65+'),
                          ('datasets/sub-borougharea-borninnewyorkstate.csv', 'NYS Born People'),
@@ -189,8 +193,11 @@ subboroughs_data_info = [('datasets/sub-borougharea-populationdensity1000persons
                          ('datasets/sub-borougharea-populationaged25withoutahighschooldiploma.csv', 'People O25 without Diploma')]
 
 
-def preprocess_districts_data():
+def preprocess_subboroughs_data():
     """
+    Esegue il preprocessing dei dataset sulle sub-borough area,
+    ognuno contenente uno o più attributi di interesse. I dataset
+    sono poi joinati tra loro per ottenere un unico dataset sui sub-boroughs.
     """
     dfs = []
     cols_to_drop = ['Name', 'Level', 'Year']
@@ -261,7 +268,7 @@ def preprocess_districts_data():
 
 
 
-preprocess_districts_data()
+preprocess_subboroughs_data()
 preprocess_servicerequests_data()
 
 create_unique_incidents_dataset()
