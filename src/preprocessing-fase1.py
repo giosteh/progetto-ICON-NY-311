@@ -124,6 +124,8 @@ def create_unique_incidents_dataset():
             return False
         if row1['Descriptor'] != row2['Descriptor']:
             return False
+        if row1['Location Type'] != row2['Location Type']:
+            return False
 
         time_diff = abs((row1['Created Date'] - row2['Created Date']).total_seconds()) / 3600
         if time_diff > time_window_hours:
@@ -151,28 +153,39 @@ def create_unique_incidents_dataset():
         
         return incidents
     
+    df['Incident Id'] = 0
     incidents = identify_incidents(df)
     incidents_rows = []
 
-    for incident in incidents:
+    for i, incident in enumerate(incidents):
+        incident_id = i + 1
         incident_data = df.iloc[incident]
+        incident_data['Incident Id'] = incident_id
         row = incident_data.iloc[0]
-        incident_row = {'Earliest Created Date': incident_data['Created Date'].min(),
+        incident_row = {'Incident Id': incident_id,
+                        'Earliest Created Date': incident_data['Created Date'].min(),
                         'Complaint Type': row['Complaint Type'],
                         'Descriptor': row['Descriptor'],
                         'Borough': row['Borough'],
                         'Sub-Borough Area': row['Sub-Borough Area'],
-                        'Incident Address': row['Incident Address']}
+                        'Incident Address': row['Incident Address'],
+                        'Location Type': row['Location Type']}
         incidents_rows.append(incident_row)
     
     incidents_df = pd.DataFrame(incidents_rows)
     incidents_df.to_csv('datasets/311-unique-incidents.csv', index=False)
 
+    df.drop(columns=['Complaint Type', 'Descriptor', 'Borough',
+                     'Sub-Borough Area', 'Street Name',
+                     'Incident Address', 'Location Type'], inplace=True)
+    df.to_csv('datasets/311-2023-05-v3.csv', index=False)
+    
+
 # lista dei path dei dataset sui distretti
 districts_data_paths = ['datasets/district-incomedistribution.csv',
-                       'datasets/district-povertyrate.csv',
-                       'datasets/district-racecomposition.csv',
-                       'datasets/district-crimerate.csv']
+                        'datasets/district-povertyrate.csv',
+                        'datasets/district-racecomposition.csv',
+                        'datasets/district-crimerate.csv']
 
 # lista delle coppie di distretti i cui dati sono ripetuti
 districts_to_collapse = [('BX01', 'BX02'),
