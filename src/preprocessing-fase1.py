@@ -119,7 +119,7 @@ def create_unique_incidents_dataset():
     df = pd.read_csv('datasets/311-2023-05-v2.csv')
     df['Created Date'] = pd.to_datetime(df['Created Date'])
 
-    def is_same_incident(row1, row2, time_window_hours=24, max_distance_meters=100):
+    def is_same_incident(row1, row2, time_window_hours=24, max_distance_meters=80):
         if row1['Complaint Type'] != row2['Complaint Type']:
             return False
         if row1['Descriptor'] != row2['Descriptor']:
@@ -151,7 +151,7 @@ def create_unique_incidents_dataset():
         
         return incidents
     
-    incidents = identify_incidents()
+    incidents = identify_incidents(df)
     incidents_rows = []
 
     for incident in incidents:
@@ -262,7 +262,7 @@ def preprocess_subboroughs_data():
     subboroughs_cols = [col[1] for col in subboroughs_data_info]
     for i, col in enumerate(subboroughs_cols):
         if i > 1:
-            df_join[col] = (df_join[col].astype(float) * 100).round(3)
+            df_join[col] = (df_join[col].astype(float) * 100).round(2)
     
     df_join.to_csv('datasets/subboroughs-data.csv', index=False)
 
