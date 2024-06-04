@@ -3,15 +3,18 @@ import pandas as pd
 from datetime import timedelta
 from geopy.distance import great_circle
 
+
+PROJECT_PATH = 'progetto-ICON-NY-311/src/datasets/'
+
 # dizionario che mappa i nomi dei borough ai loro acronimi
-acronyms = {'BRONX': 'BX',
+ACRONYMS = {'BRONX': 'BX',
             'BROOKLYN': 'BK',
             'MANHATTAN': 'MN',
             'QUEENS': 'QN',
             'STATEN ISLAND': 'SI'}
 
 # dizionario che mappa i codici dei distretti alle sub-borough area
-districts_map = {'BK01': 'Williamsburg/Greenpoint',
+DISTRICTS_MAP = {'BK01': 'Williamsburg/Greenpoint',
                  'BK02': 'Brooklyn Heights/Fort Greene',
                  'BK03': 'Bedford Stuyvesant',
                  'BK04': 'Bushwick',
@@ -79,9 +82,9 @@ def preprocess_servicerequests_data():
     fatte nel mese di maggio dell'anno 2023, da cui sono state inoltre
     eliminate colonne a valori per la maggior parte nulli.
     """
-    df = pd.read_csv('datasets/311-2023-05.csv')
+    df = pd.read_csv(PROJECT_PATH + '311-2023-05.csv')
 
-    cols_to_drop = ['Vehicle Type', 'Taxi Company Borough']
+    cols_to_drop = ['Street Name', 'Vehicle Type', 'Taxi Company Borough']
     cols_to_normalize = ['Complaint Type', 'Descriptor', 'Location Type',
                          'Incident Address', 'Street Name', 'Status',
                          'Borough', 'Open Data Channel Type']
@@ -89,7 +92,7 @@ def preprocess_servicerequests_data():
     normalize_string_spaces = lambda s: ' '.join(s.split())
     def transform_district_codes(s):
         number, borough = s.split(' ', 1)
-        return f"{acronyms.get(borough)}{number}"
+        return f"{ACRONYMS.get(borough)}{number}"
     
     df.drop(columns=cols_to_drop, inplace=True)
     df.rename(columns={'Community Board': 'Sub-Borough Area'}, inplace=True)
@@ -102,12 +105,12 @@ def preprocess_servicerequests_data():
         df[col] = df[col].apply(normalize_string_spaces)
         df[col] = df[col].str.lower()
     
-    df['Sub-Borough Area'] = df['Sub-Borough Area'].apply(transform_district_codes).map(districts_map)
+    df['Sub-Borough Area'] = df['Sub-Borough Area'].apply(transform_district_codes).map(DISTRICTS_MAP)
 
     df[['Latitude', 'Longitude']] = df['Location'].str.extract(r'\(([^,]+), ([^,]+)\)').astype(float)
     df.drop(columns=['Location'], inplace=True)
 
-    df.to_csv('datasets/311-2023-05-v2.csv', index=False)
+    df.to_csv(PROJECT_PATH + '311-2023-05-v2.csv', index=False)
 
 
 def create_unique_incidents_dataset():
@@ -116,7 +119,7 @@ def create_unique_incidents_dataset():
     gli `incident` unici oggetto di più richieste di servizio,
     isolandoli e realizzando un dataset che li collezioni.
     """
-    df = pd.read_csv('datasets/311-2023-05-v2.csv')
+    df = pd.read_csv(PROJECT_PATH + '311-2023-05-v2.csv')
     df['Created Date'] = pd.to_datetime(df['Created Date'])
 
     def is_same_incident(row1, row2, time_window_hours=24, max_distance_meters=80):
@@ -165,45 +168,43 @@ def create_unique_incidents_dataset():
         incident_row = {'Incident Id': incident_id,
                         'Earliest Created Date': incident_data['Created Date'].min(),
                         'Complaint Type': row['Complaint Type'],
-                        'Descriptor': row['Descriptor'],
+                        'Location Type': row['Location Type'],
+                        'Address': row['Incident Address'],
                         'Borough': row['Borough'],
-                        'Sub-Borough Area': row['Sub-Borough Area'],
-                        'Incident Address': row['Incident Address'],
-                        'Location Type': row['Location Type']}
+                        'Sub-Borough Area': row['Sub-Borough Area']}
         incidents_rows.append(incident_row)
     
-    incidents_df = pd.DataFrame(incidents_rows)
-    incidents_df.to_csv('datasets/311-unique-incidents.csv', index=False)
+    df_incidents = pd.DataFrame(incidents_rows)
+    df_incidents.to_csv(PROJECT_PATH + '311-unique-incidents.csv', index=False)
 
-    df.drop(columns=['Complaint Type', 'Descriptor', 'Borough',
-                     'Sub-Borough Area', 'Street Name',
-                     'Incident Address', 'Location Type'], inplace=True)
-    df.to_csv('datasets/311-2023-05-v3.csv', index=False)
+    df.drop(columns=['Complaint Type', 'Descriptor', 'Location Type',
+                     'Borough', 'Sub-Borough Area', 'Incident Address'], inplace=True)
+    df.to_csv(PROJECT_PATH + '311-2023-05-v3.csv', index=False)
     
 
 # lista dei path dei dataset sui distretti
-districts_data_paths = ['datasets/district-incomedistribution.csv',
-                        'datasets/district-povertyrate.csv',
-                        'datasets/district-racecomposition.csv',
-                        'datasets/district-crimerate.csv']
+DISTRICTS_DATA_PATHS = ['district-incomedistribution.csv',
+                        'district-povertyrate.csv',
+                        'district-racecomposition.csv',
+                        'district-crimerate.csv']
 
 # lista delle coppie di distretti i cui dati sono ripetuti
-districts_to_collapse = [('BX01', 'BX02'),
+DISTRICTS_TO_COLLAPSE = [('BX01', 'BX02'),
                          ('BX03', 'BX06'),
                          ('MN01', 'MN02'),
                          ('MN04', 'MN05')]
 
 # lista delle coppie (path, rinominazione della colonna 2021) per ciascuno dei dataset sui sub-borough
-subboroughs_data_info = [('datasets/sub-borougharea-populationdensity1000personspersquaremile.csv', 'Population Density'),
-                         ('datasets/sub-borougharea-populationaged65.csv', 'Population Aged 65+'),
-                         ('datasets/sub-borougharea-borninnewyorkstate.csv', 'NYS Born People'),
-                         ('datasets/sub-borougharea-foreign-bornpopulation.csv', 'Foreign Born People'),
-                         ('datasets/sub-borougharea-disabledpopulation.csv', 'Disabled People'),
-                         ('datasets/sub-borougharea-unemploymentrate.csv', 'Unemployment Rate'),
-                         ('datasets/sub-borougharea-car-freecommuteofcommuters.csv', 'Car-Free Commuters'),
-                         ('datasets/sub-borougharea-householdswithchildrenunder18yearsold.csv', 'Families with Children U18'),
-                         ('datasets/sub-borougharea-populationaged25withabachelorsdegreeorhigher.csv', 'People O25 with Bachelor'),
-                         ('datasets/sub-borougharea-populationaged25withoutahighschooldiploma.csv', 'People O25 without Diploma')]
+SUBBOROUGHS_DATA_INFO = [('sub-borougharea-populationdensity1000personspersquaremile.csv', 'Population Density'),
+                         ('sub-borougharea-populationaged65.csv', 'Population Aged 65+'),
+                         ('sub-borougharea-borninnewyorkstate.csv', 'NYS Born People'),
+                         ('sub-borougharea-foreign-bornpopulation.csv', 'Foreign Born People'),
+                         ('sub-borougharea-disabledpopulation.csv', 'Disabled People'),
+                         ('sub-borougharea-unemploymentrate.csv', 'Unemployment Rate'),
+                         ('sub-borougharea-car-freecommuteofcommuters.csv', 'Car-Free Commuters'),
+                         ('sub-borougharea-householdswithchildrenunder18yearsold.csv', 'Families with Children'),
+                         ('sub-borougharea-populationaged25withabachelorsdegreeorhigher.csv', 'People O25 with Bachelor'),
+                         ('sub-borougharea-populationaged25withoutahighschooldiploma.csv', 'People O25 without Diploma')]
 
 
 def preprocess_subboroughs_data():
@@ -212,46 +213,47 @@ def preprocess_subboroughs_data():
     ognuno contenente uno o più attributi di interesse. I dataset
     sono poi joinati tra loro per ottenere un unico dataset sui sub-boroughs.
     """
-    dfs = []
-    cols_to_drop = ['Name', 'Level', 'Year']
-
-    for path in districts_data_paths:
-        df = pd.read_csv(path)
-        dfs.append(df)
+    df_income_distribution = pd.read_csv(PROJECT_PATH + DISTRICTS_DATA_PATHS[0])
+    df_poverty_rate = pd.read_csv(PROJECT_PATH + DISTRICTS_DATA_PATHS[1])
+    df_race_composition = pd.read_csv(PROJECT_PATH + DISTRICTS_DATA_PATHS[2])
+    df_crime_rate = pd.read_csv(PROJECT_PATH + DISTRICTS_DATA_PATHS[3])
     
-    dfs[0].rename(columns={'year', 'Year'}, inplace=True)
-    dfs[0] = dfs[0][dfs[0]['Year'] == '2018-2022']
-
-    for df in dfs:
+    df_crime_rate.rename(columns={'year': 'Year'}, inplace=True)
+    df_crime_rate = df_crime_rate[df_crime_rate['Year'] == '2018-2022']
+    
+    def process_districts_data(df, cols_to_drop, rename_columns):
         df = df.iloc[6:]
         df.drop(columns=cols_to_drop, inplace=True)
         df.rename(columns={'Geography': 'Community District'}, inplace=True)
         df['Community District'] = df['Community District'].apply(lambda s: ''.join(s.split()))
+        df.rename(columns=rename_columns, inplace=True)
+        return df
     
-    dfs[0].rename(columns={'property_crime_rate': 'Property Crime Rate',
-                           'violent_crime_rate': 'Violent Crime Rate'}, inplace=True)
-    dfs[1].rename(columns={'<= $20,000': 'Low Income Population',
-                           '$20,001 -\n$40,000': 'Medium-Low Income Population',
-                           '$40,001 -\n$60,000': 'Medium Income Population',
-                           '$60,001 -\n$100,000': 'Medium-High Income Population',
-                           '$100,001 -\n$250,000': 'High Income Population',
-                           '> $250,000': 'Very High Income Population'}, inplace=True)
-    dfs[2].rename(columns={'poverty_rate': 'Poverty Rate'}, inplace=True)
-    dfs[3].rename(columns={'pop_hispanic_pct': 'Hispanic Population',
-                           'pop_non_hispanic_asian_pct': 'Asian Population',
-                           'pop_non_hispanic_black_pct': 'Black Population',
-                           'pop_non_hispanic_white_pct': 'White Population'}, inplace=True)
+    cols_to_drop = ['Name', 'Level', 'Year']
+    df_crime_rate = process_districts_data(df_crime_rate, cols_to_drop, {'property_crime_rate': 'Property Crime Rate',
+																'violent_crime_rate': 'Violent Crime Rate'})
+    df_income_distribution = process_districts_data(df_income_distribution, cols_to_drop, {'<= $20,000': 'Low Income Population',
+																				  '$20,001 -\n$40,000': 'Medium-Low Income Population',
+																				  '$40,001 -\n$60,000': 'Medium Income Population',
+																				  '$60,001 -\n$100,000': 'Medium-High Income Population',
+																				  '$100,001 -\n$250,000': 'High Income Population',
+																				  '> $250,000': 'Very High Income Population'})
+    df_poverty_rate = process_districts_data(df_poverty_rate, cols_to_drop, {'poverty_rate': 'Poverty Rate'})
+    df_race_composition = process_districts_data(df_race_composition, cols_to_drop, {'pop_hispanic_pct': 'Hispanic Population',
+																			'pop_non_hispanic_asian_pct': 'Asian Population',
+																			'pop_non_hispanic_black_pct': 'Black Population',
+																			'pop_non_hispanic_white_pct': 'White Population'})
     
-    df_join = pd.merge(dfs[0], dfs[1], on='Community District', how='inner')
-    df_join = pd.merge(df_join, dfs[2], on='Community District', how='inner')
-    df_join = pd.merge(df_join, dfs[3], on='Community District', how='inner')
+    df_join = pd.merge(df_crime_rate, df_income_distribution, on='Community District', how='inner')
+    df_join = pd.merge(df_join, df_poverty_rate, on='Community District', how='inner')
+    df_join = pd.merge(df_join, df_race_composition, on='Community District', how='inner')
 
     for i, col in enumerate(df_join.columns):
         if i > 2:
             df_join[col] = df_join[col].str.replace('%', '').astype(float)
     
     col_pc, col_vc = 'Property Crime Rate', 'Violent Crime Rate'
-    for dist in districts_to_collapse:
+    for dist in DISTRICTS_TO_COLLAPSE:
         cond1, cond2 = df_join['Community District'] == dist[0], df_join['Community District'] == dist[1]
 
         new_pc = (df_join.loc[cond1, col_pc].values[0] + df_join.loc[cond2, col_pc].values[0]) / 2
@@ -259,25 +261,25 @@ def preprocess_subboroughs_data():
         df_join.loc[cond1 | cond2, col_pc] = new_pc
         df_join.loc[cond1 | cond2, col_vc] = new_vc
     
-    df_join['Community District'] = df_join['Community District'].map(districts_map)
+    df_join['Community District'] = df_join['Community District'].map(DISTRICTS_MAP)
     df_join.rename(columns={'Community District': 'Sub-Borough Area'})
     df_join = df_join.drop_duplicates()
 
     cols_to_drop = [str(year) for year in range(2000, 2021)]
     cols_to_drop.extend(['short_name', 'long_name'])
 
-    for info in subboroughs_data_info:
-        df = pd.read_csv(info[0])
+    for info in SUBBOROUGHS_DATA_INFO:
+        df = pd.read_csv(PROJECT_PATH + info[0])
         df.drop(columns=cols_to_drop, errors='ignore', inplace=True)
         df.rename(columns={'2021': info[1]}, inplace=True)
         df_join = pd.merge(df_join, df, on='Sub-Borough Area', how='inner')
     
-    subboroughs_cols = [col[1] for col in subboroughs_data_info]
+    subboroughs_cols = [col[1] for col in SUBBOROUGHS_DATA_INFO]
     for i, col in enumerate(subboroughs_cols):
         if i > 1:
             df_join[col] = (df_join[col].astype(float) * 100).round(2)
     
-    df_join.to_csv('datasets/subboroughs-data.csv', index=False)
+    df_join.to_csv(PROJECT_PATH + 'subboroughs-ny.csv', index=False)
 
 
 
